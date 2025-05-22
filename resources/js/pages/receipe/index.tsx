@@ -5,15 +5,15 @@ import { Head } from '@inertiajs/react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
-        title: 'Dashboard',
-        href: '/dashboard',
+        title: 'Receipe List',
+        href: '/receipe',
     },
 ];
 
 export default function ReceipePage({ data } : { data: any}) {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Dashboard" />
+            <Head title="Receipes" />
             <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
                 <RecipePage data={data}/>
             </div>

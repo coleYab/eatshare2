@@ -10,6 +10,17 @@ class Receipe extends Model
     /** @use HasFactory<\Database\Factories\ReceipeFactory> */
     use HasFactory;
 
+    protected $fillable = [
+                'title',
+                'user_id',
+                'description',
+                'serving',
+                'image',
+                'preparation_time',
+                'cooking_time',
+                'difficulty'
+    ];
+
     public function ingredients() {
         return $this->hasMany(Ingredient::class);
     }

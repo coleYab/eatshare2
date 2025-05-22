@@ -11,7 +11,7 @@ class UpdateReceipeRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +22,20 @@ class UpdateReceipeRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'title' => ['required', 'string', 'max:255'],
+            'description' => ['required', 'string'],
+            'preparation_time' => ['required','integer'],
+            'cooking_time' => ['required','integer'],
+            'servings' => ['required', 'integer'],
+            'difficulty' => ['required', 'string'],
+            'ingredients' => ['required', 'array'],
+            'ingredients.*.name' => ['required', 'string', 'max:255'],
+            'ingredients.*.amount' => ['required', 'integer', 'max:255'],
+            'ingredients.*.unit' => ['required', 'string', 'max:255'],
+            'steps' => ['array'],
+            'steps.*.description' => ['required', 'string'],
+            'steps.*.time' => ['required', 'integer'],
+            'image' => ['required', 'string']
         ];
     }
 }

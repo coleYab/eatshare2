@@ -26,13 +26,6 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { Separator } from "../ui/separator"
 
-// Add a type for sorting options
-type SortOption = {
-  label: string
-  value: string
-  direction: "asc" | "desc"
-}
-
 // Define filter condition types
 type FilterField = "preparation_time" | "cooking_time" | "serving" | "difficulty" | "title"
 type FilterOperator = "eq" | "gt" | "lt" | "gte" | "lte" | "contains"
@@ -84,17 +77,14 @@ const getFieldLabel = (field: FilterField): string => {
 
 export default function RecipePage({ data }: { data: any }) {
   // State for recipes and filtering
-
-  // console.log(data)
   const [recipes, setRecipes] = useState<any[]>(() => {
     return data.data.map((recipe) => ({
       ...recipe,
       total_time: recipe.preparation_time + recipe.cooking_time,
     }))
   })
-  const [filteredRecipes, setFilteredRecipes] = useState<any[]>(recipes)
   const [searchQuery, setSearchQuery] = useState("")
-
+  
   // State for query builder
   const [filterConditions, setFilterConditions] = useState<FilterCondition[]>([])
   const [newCondition, setNewCondition] = useState<Partial<FilterCondition>>({
@@ -103,35 +93,8 @@ export default function RecipePage({ data }: { data: any }) {
     value: "",
   })
 
-  // State for sorting
-  const [sortOption, setSortOption] = useState<SortOption>({
-    label: "Default",
-    value: "default",
-    direction: "asc",
-  })
-
-  // State for pagination
-  const [currentPage, setCurrentPage] = useState(1)
-  const [itemsPerPage, setItemsPerPage] = useState(6)
-  const [totalPages, setTotalPages] = useState(Math.ceil(filteredRecipes.length / itemsPerPage))
-
   // State for loading
   const [isLoading, setIsLoading] = useState(false)
-
-  // Define sorting options
-  const sortOptions: SortOption[] = [
-    { label: "Default", value: "default", direction: "asc" },
-    { label: "Preparation Time (Low to High)", value: "preparation_time", direction: "asc" },
-    { label: "Preparation Time (High to Low)", value: "preparation_time", direction: "desc" },
-    { label: "Cooking Time (Low to High)", value: "cooking_time", direction: "asc" },
-    { label: "Cooking Time (High to Low)", value: "cooking_time", direction: "desc" },
-    { label: "Total Time (Low to High)", value: "total_time", direction: "asc" },
-    { label: "Total Time (High to Low)", value: "total_time", direction: "desc" },
-    { label: "Servings (Low to High)", value: "serving", direction: "asc" },
-    { label: "Servings (High to Low)", value: "serving", direction: "desc" },
-    { label: "Difficulty (Easy to Hard)", value: "difficulty", direction: "asc" },
-    { label: "Difficulty (Hard to Easy)", value: "difficulty", direction: "desc" },
-  ]
 
   // Define available filter fields
   const filterFields: { value: FilterField; label: string }[] = [
@@ -171,11 +134,6 @@ export default function RecipePage({ data }: { data: any }) {
       newCondition.value === undefined ||
       newCondition.value === ""
     ) {
-      // toast({
-      //   title: "Invalid filter condition",
-      //   description: "Please fill in all fields for the filter condition.",
-      //   variant: "destructive",
-      // })
       return
     }
 
@@ -199,35 +157,26 @@ export default function RecipePage({ data }: { data: any }) {
   const resetFilters = () => {
     setFilterConditions([])
     setSearchQuery("")
-    setSortOption({
-      label: "Default",
-      value: "default",
-      direction: "asc",
-    })
   }
 
   // Function to build query parameters from filter conditions
   const buildQueryParams = () => {
-    let params = {};
-    // console.log(filterConditions)
-    let param = "";
+    let param = ""
     for (const condition of filterConditions) {
       const curParam = `${condition.field}[${condition.operator}]=${condition.value}`
-      if (!param) {
-        param = curParam
-      } else {
-        param = `${param}&${curParam}`
-      }
+      param = param ? `${param}&${curParam}` : curParam
     }
-    return param;
+    return param
   }
 
   // Function to fetch recipes from the backend
   const fetchRecipes = async () => {
-    // setIsLoading(true)
+    setIsLoading(true)
     const queryParams = buildQueryParams()
-    // console.log(queryParams);
-    router.get(`/receipe?${queryParams}`);
+    router.get(`/receipe?${queryParams}`, {}, {
+      preserveState: true,
+      onFinish: () => setIsLoading(false),
+    })
   }
 
   // Get difficulty badge color
@@ -244,75 +193,19 @@ export default function RecipePage({ data }: { data: any }) {
     }
   }
 
-  // Pagination functions
-  const goToPage = (page: number) => {
-    setCurrentPage(page)
-  }
-
-  const goToFirstPage = () => {
-    setCurrentPage(1)
-  }
-
-  const goToLastPage = () => {
-    setCurrentPage(totalPages)
-  }
-
-  const goToPreviousPage = () => {
-    if (currentPage > 1) {
-      setCurrentPage(currentPage - 1)
-    }
-  }
-
-  const goToNextPage = () => {
-    if (currentPage < totalPages) {
-      setCurrentPage(currentPage + 1)
-    }
-  }
-
-  // Get current recipes for the page
-  const getCurrentRecipes = () => {
-    const startIndex = (currentPage - 1) * itemsPerPage
-    const endIndex = startIndex + itemsPerPage
-    return filteredRecipes.slice(startIndex, endIndex)
-  }
-
-  // Generate page numbers for pagination
-  const getPageNumbers = () => {
-    const pageNumbers = []
-    const maxPageButtons = 5 // Maximum number of page buttons to show
-
-    if (totalPages <= maxPageButtons) {
-      // Show all pages if total pages is less than or equal to maxPageButtons
-      for (let i = 1; i <= totalPages; i++) {
-        pageNumbers.push(i)
-      }
-    } else {
-      // Show a subset of pages with current page in the middle if possible
-      let startPage = Math.max(1, currentPage - Math.floor(maxPageButtons / 2))
-      let endPage = startPage + maxPageButtons - 1
-
-      if (endPage > totalPages) {
-        endPage = totalPages
-        startPage = Math.max(1, endPage - maxPageButtons + 1)
-      }
-
-      for (let i = startPage; i <= endPage; i++) {
-        pageNumbers.push(i)
-      }
-    }
-
-    return pageNumbers
-  }
-
-  const searchRecepies = () => {
-    router.get('/search', { 'query': searchQuery });
+  // Search recipes
+  const searchRecipes = () => {
+    router.get('/search', { query: searchQuery }, {
+      preserveState: true,
+      onFinish: () => setIsLoading(false),
+    })
   }
 
   return (
     <div className="container mx-auto py-8 px-4">
       <h1 className="text-3xl font-bold mb-8">Delicious Recipes</h1>
 
-      {/* Search, Sort, and Filter Bar - Desktop */}
+      {/* Search and Filter Bar - Desktop */}
       <div className="hidden md:flex items-center justify-between mb-8 gap-4">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
@@ -324,215 +217,187 @@ export default function RecipePage({ data }: { data: any }) {
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
-        <Button onClick={searchRecepies}>Search</Button>
-        <div className="flex items-center gap-2">
-          {/* Sorting Dropdown
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="flex items-center gap-2">
-                <ArrowUpDown size={16} />
-                Sort: {sortOption.label}
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56">
-              {sortOptions.map((option) => (
-                <DropdownMenuItem
-                  key={`${option.value}-${option.direction}`}
-                  onClick={() => setSortOption(option)}
-                  className={
-                    sortOption.value === option.value && sortOption.direction === option.direction ? "bg-accent" : ""
-                  }
-                >
-                  {option.label}
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu> */}
+        <Button onClick={searchRecipes}>Search</Button>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button variant="outline" className="flex items-center gap-2">
+              <Filter size={16} />
+              Filters
+              {filterConditions.length > 0 && (
+                <Badge className="ml-1 h-5 w-5 rounded-full p-0 flex items-center justify-center">
+                  {filterConditions.length}
+                </Badge>
+              )}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-96 p-8">
+            <div className="space-y-4">
+              <h3 className="font-medium text-lg">Filter Query Builder</h3>
+              <p className="text-sm text-muted-foreground">
+                Build complex queries by adding multiple filter conditions.
+              </p>
 
-          {/* Query Builder Popover */}
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button variant="outline" className="flex items-center gap-2">
-                <Filter size={16} />
-                Filters
-                {filterConditions.length > 0 && (
-                  <Badge className="ml-1 h-5 w-5 rounded-full p-0 flex items-center justify-center">
-                    {filterConditions.length}
-                  </Badge>
-                )}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-96 p-8">
-              <div className="space-y-4">
-                <h3 className="font-medium text-lg">Filter Query Builder</h3>
-                <p className="text-sm text-muted-foreground">
-                  Build complex queries by adding multiple filter conditions.
-                </p>
-
-                {/* Active filter conditions */}
-                {filterConditions.length > 0 && (
-                  <div className="space-y-2">
-                    <h4 className="font-medium text-sm">Active Filters:</h4>
-                    <div className="space-y-2 max-h-40 overflow-y-auto">
-                      {filterConditions.map((condition) => (
-                        <div
-                          key={condition.id}
-                          className="flex items-center justify-between bg-muted p-2 rounded-md text-sm"
+              {/* Active filter conditions */}
+              {filterConditions.length > 0 && (
+                <div className="space-y-2">
+                  <h4 className="font-medium text-sm">Active Filters:</h4>
+                  <div className="space-y-2 max-h-40 overflow-y-auto">
+                    {filterConditions.map((condition) => (
+                      <div
+                        key={condition.id}
+                        className="flex items-center justify-between bg-muted p-2 rounded-md text-sm"
+                      >
+                        <span>
+                          {getFieldLabel(condition.field)} {getOperatorLabel(condition.operator)}{" "}
+                          <strong>{condition.value}</strong>
+                        </span>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-6 w-6"
+                          onClick={() => removeFilterCondition(condition.id)}
                         >
-                          <span>
-                            {getFieldLabel(condition.field)} {getOperatorLabel(condition.operator)}{" "}
-                            <strong>{condition.value}</strong>
-                          </span>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-6 w-6"
-                            onClick={() => removeFilterCondition(condition.id)}
-                          >
-                            <X size={14} />
-                          </Button>
-                        </div>
-                      ))}
-                    </div>
+                          <X size={14} />
+                        </Button>
+                      </div>
+                    ))}
                   </div>
-                )}
+                </div>
+              )}
 
-                <Separator />
+              <Separator />
 
-                {/* Add new filter condition */}
-                <div className="space-y-3">
-                  <h4 className="font-medium text-sm">Add Filter:</h4>
+              {/* Add new filter condition */}
+              <div className="space-y-3">
+                <h4 className="font-medium text-sm">Add Filter:</h4>
 
-                  {/* Field selection */}
-                  <div>
-                    <label className="text-xs text-muted-foreground block mb-1">Field</label>
-                    <Select
-                      value={newCondition.field}
-                      onValueChange={(value) =>
-                        setNewCondition({
-                          ...newCondition,
-                          field: value as FilterField,
-                          operator: getOperatorsForField(value as FilterField)[0].value,
-                          value: "",
-                        })
-                      }
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select field" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {filterFields.map((field) => (
-                          <SelectItem key={field.value} value={field.value}>
-                            {field.label}
+                {/* Field selection */}
+                <div>
+                  <label className="text-xs text-muted-foreground block mb-1">Field</label>
+                  <Select
+                    value={newCondition.field}
+                    onValueChange={(value) =>
+                      setNewCondition({
+                        ...newCondition,
+                        field: value as FilterField,
+                        operator: getOperatorsForField(value as FilterField)[0].value,
+                        value: "",
+                      })
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select field" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {filterFields.map((field) => (
+                        <SelectItem key={field.value} value={field.value}>
+                          {field.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Operator selection */}
+                <div>
+                  <label className="text-xs text-muted-foreground block mb-1">Operator</label>
+                  <Select
+                    value={newCondition.operator}
+                    onValueChange={(value) =>
+                      setNewCondition({
+                        ...newCondition,
+                        operator: value as FilterOperator,
+                      })
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select operator" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {newCondition.field &&
+                        getOperatorsForField(newCondition.field).map((op) => (
+                          <SelectItem key={op.value} value={op.value}>
+                            {op.label}
                           </SelectItem>
                         ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
+                    </SelectContent>
+                  </Select>
+                </div>
 
-                  {/* Operator selection */}
-                  <div>
-                    <label className="text-xs text-muted-foreground block mb-1">Operator</label>
+                {/* Value input */}
+                <div>
+                  <label className="text-xs text-muted-foreground block mb-1">Value</label>
+                  {newCondition.field === "difficulty" ? (
                     <Select
-                      value={newCondition.operator}
+                      value={newCondition.value?.toString() || ""}
                       onValueChange={(value) =>
                         setNewCondition({
                           ...newCondition,
-                          operator: value as FilterOperator,
+                          value,
                         })
                       }
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder="Select operator" />
+                        <SelectValue placeholder="Select difficulty" />
                       </SelectTrigger>
                       <SelectContent>
-                        {newCondition.field &&
-                          getOperatorsForField(newCondition.field).map((op) => (
-                            <SelectItem key={op.value} value={op.value}>
-                              {op.label}
-                            </SelectItem>
-                          ))}
+                        <SelectItem value="easy">Easy</SelectItem>
+                        <SelectItem value="medium">Medium</SelectItem>
+                        <SelectItem value="hard">Hard</SelectItem>
                       </SelectContent>
                     </Select>
-                  </div>
-
-                  {/* Value input */}
-                  <div>
-                    <label className="text-xs text-muted-foreground block mb-1">Value</label>
-                    {newCondition.field === "difficulty" ? (
-                      <Select
-                        value={newCondition.value?.toString() || ""}
-                        onValueChange={(value) =>
-                          setNewCondition({
-                            ...newCondition,
-                            value,
-                          })
-                        }
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select difficulty" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="easy">Easy</SelectItem>
-                          <SelectItem value="medium">Medium</SelectItem>
-                          <SelectItem value="hard">Hard</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    ) : (
-                      <Input
-                        type={
-                          ["preparation_time", "cooking_time", "serving"].includes(newCondition.field || "")
-                            ? "number"
-                            : "text"
-                        }
-                        placeholder="Enter value"
-                        value={newCondition.value?.toString() || ""}
-                        onChange={(e) => {
-                          const value = ["preparation_time", "cooking_time", "serving"].includes(
-                            newCondition.field || "",
-                          )
-                            ? Number(e.target.value)
-                            : e.target.value
-                          setNewCondition({
-                            ...newCondition,
-                            value,
-                          })
-                        }}
-                      />
-                    )}
-                  </div>
-
-                  <Button onClick={addFilterCondition} className="w-full">
-                    <Plus size={16} className="mr-2" /> Add Filter
-                  </Button>
+                  ) : (
+                    <Input
+                      type={
+                        ["preparation_time", "cooking_time", "serving"].includes(newCondition.field || "")
+                          ? "number"
+                          : "text"
+                      }
+                      placeholder="Enter value"
+                      value={newCondition.value?.toString() || ""}
+                      onChange={(e) => {
+                        const value = ["preparation_time", "cooking_time", "serving"].includes(newCondition.field || "")
+                          ? Number(e.target.value)
+                          : e.target.value
+                        setNewCondition({
+                          ...newCondition,
+                          value,
+                        })
+                      }}
+                    />
+                  )}
                 </div>
 
-                <Separator />
-
-                {/* Action buttons */}
-                <div className="flex justify-between">
-                  <Button variant="outline" onClick={resetFilters} size="sm">
-                    Reset All
-                  </Button>
-                  <Button onClick={fetchRecipes} disabled={isLoading} size="sm">
-                    {isLoading ? (
-                      <>
-                        <Loader2 size={16} className="mr-2 animate-spin" /> Loading...
-                      </>
-                    ) : (
-                      <>
-                        <Send size={16} className="mr-2" /> Apply Filters
-                      </>
-                    )}
-                  </Button>
-                </div>
+                <Button onClick={addFilterCondition} className="w-full">
+                  <Plus size={16} className="mr-2" /> Add Filter
+                </Button>
               </div>
-            </PopoverContent>
-          </Popover>
-        </div>
+
+              <Separator />
+
+              {/* Action buttons */}
+              <div className="flex justify-between">
+                <Button variant="outline" onClick={resetFilters} size="sm">
+                  Reset All
+                </Button>
+                <Button onClick={fetchRecipes} disabled={isLoading} size="sm">
+                  {isLoading ? (
+                    <>
+                      <Loader2 size={16} className="mr-2 animate-spin" /> Loading...
+                    </>
+                  ) : (
+                    <>
+                      <Send size={16} className="mr-2" /> Apply Filters
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
+          </PopoverContent>
+        </Popover>
       </div>
 
-      {/* Search, Sort, and Filter Bar - Mobile */}
+      {/* Search and Filter Bar - Mobile */}
       <div className="flex md:hidden items-center gap-2 mb-6">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
@@ -544,7 +409,7 @@ export default function RecipePage({ data }: { data: any }) {
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
-
+        <Button onClick={searchRecipes}>Search</Button>
         <Sheet>
           <SheetTrigger asChild>
             <Button variant="outline" size="icon" className="relative">
@@ -559,41 +424,10 @@ export default function RecipePage({ data }: { data: any }) {
           </SheetTrigger>
           <SheetContent>
             <SheetHeader>
-              <SheetTitle>Filters & Sorting</SheetTitle>
-              <SheetDescription>Build your query and sort recipes by various criteria.</SheetDescription>
+              <SheetTitle>Filters</SheetTitle>
+              <SheetDescription>Build your query to filter recipes.</SheetDescription>
             </SheetHeader>
             <div className="space-y-4 mt-4">
-              {/* Sorting in mobile view */}
-              <div>
-                <h3 className="font-medium mb-2">Sort By</h3>
-                <Select
-                  value={`${sortOption.value}-${sortOption.direction}`}
-                  onValueChange={(value) => {
-                    const [optionValue, direction] = value.split("-")
-                    const option = sortOptions.find((opt) => opt.value === optionValue && opt.direction === direction)
-                    if (option) {
-                      setSortOption(option)
-                    }
-                  }}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select sorting" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {sortOptions.map((option) => (
-                      <SelectItem
-                        key={`${option.value}-${option.direction}`}
-                        value={`${option.value}-${option.direction}`}
-                      >
-                        {option.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <Separator />
-
               {/* Active filter conditions */}
               {filterConditions.length > 0 && (
                 <div className="space-y-2">
@@ -757,7 +591,7 @@ export default function RecipePage({ data }: { data: any }) {
       {/* Apply Filters Button */}
       <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
         <p className="text-gray-500">
-          Showing {filteredRecipes.length} of {recipes.length} recipes
+          Showing {data.data.length} of {data.total} recipes
         </p>
         <Button onClick={fetchRecipes} disabled={isLoading} className="sm:w-auto w-full" variant="default">
           {isLoading ? (
@@ -811,9 +645,9 @@ export default function RecipePage({ data }: { data: any }) {
       )}
 
       {/* Recipe Grid */}
-      {!isLoading && filteredRecipes.length > 0 ? (
+      {!isLoading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {getCurrentRecipes().map((recipe) => (
+          {recipes.map((recipe) => (
             <Card
               key={recipe.id}
               className="overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1 group"
@@ -857,7 +691,6 @@ export default function RecipePage({ data }: { data: any }) {
                   <Link href={`receipe/${recipe.id}`} prefetch>
                     View Recipe
                   </Link>
-
                 </Button>
               </CardFooter>
             </Card>
@@ -874,49 +707,53 @@ export default function RecipePage({ data }: { data: any }) {
       )}
 
       {/* Pagination Controls */}
-      {!isLoading && filteredRecipes.length > 0 && totalPages > 1 && (
+      {!isLoading && data.data.length > 0 && (
         <div className="flex justify-center mt-8">
           <div className="flex items-center gap-1">
-            <Link href={data.first_page_url}>
+            <Link href={data.first_page_url || "#"} preserveState>
               <Button
                 variant="outline"
                 size="icon"
-                onClick={goToFirstPage}
-                // disabled={currentPage === 1}
+                disabled={!data.first_page_url}
                 className="hidden sm:flex"
               >
                 <ChevronsLeft size={16} />
                 <span className="sr-only">First page</span>
               </Button>
-
             </Link>
-
-            <Button variant="outline" size="icon" onClick={goToPreviousPage} disabled={currentPage === 1}>
-              <Link href={data.next_page_url || "#"}>
-                <ChevronLeft size={16} />
-                <span className="sr-only">Previous page</span>
-              </Link>
-            </Button>
-
-            <Button variant="outline" size="icon" onClick={goToPreviousPage} disabled>
-              <HomeIcon size={16} />
-              <span className="sr-only">Current page</span>
-            </Button>
-
-            <Button variant="outline" size="icon" disabled={!data.next_page_url}>
-              <Link href={data.next_page_url || "#"}>
-                <ChevronRight size={16} />
-                <span className="sr-only">Next page</span>
-              </Link>
-            </Button>
-
-
-            <Link href={data.last_page_url}>
+            <Link href={data.prev_page_url || "#"} preserveState>
               <Button
                 variant="outline"
                 size="icon"
-                onClick={goToLastPage}
-                disabled={currentPage === totalPages}
+                disabled={!data.prev_page_url}
+              >
+                <ChevronLeft size={16} />
+                <span className="sr-only">Previous page</span>
+              </Button>
+            </Link>
+            <Button
+              variant="outline"
+              size="icon"
+              disabled
+            >
+              <HomeIcon size={16} />
+              <span className="sr-only">Current page</span>
+            </Button>
+            <Link href={data.next_page_url || "#"} preserveState>
+              <Button
+                variant="outline"
+                size="icon"
+                disabled={!data.next_page_url}
+              >
+                <ChevronRight size={16} />
+                <span className="sr-only">Next page</span>
+              </Button>
+            </Link>
+            <Link href={data.last_page_url || "#"} preserveState>
+              <Button
+                variant="outline"
+                size="icon"
+                disabled={!data.last_page_url}
                 className="hidden sm:flex"
               >
                 <ChevronsRight size={16} />

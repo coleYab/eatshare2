@@ -95,7 +95,7 @@ export default function ShowRecepie({ recipe }: { recipe: any }) {
   const [comments, setComments] = useState(recipe.comments.slice(0, 6));
 
   const handleDelete = () => {
-    router.delete(`/recepie/${recipe.id}`)
+    router.delete(`/receipe/${recipe.id}`)
   }
 
   return (
@@ -158,7 +158,7 @@ export default function ShowRecepie({ recipe }: { recipe: any }) {
                   <BookMarked className="h-4 w-4 text-green-500" />
                   <span>{stats.saves}</span>
                 </div>
-                <Link href={`/recepie/${recipe.id}/edit`}>
+                <Link href={`/receipe/${recipe.id}/edit`} prefetch>
                   <div className="flex items-center gap-1" title="Saves">
                     <Edit className="h-4 w-4 text-green-500" />
                     <span>Edit</span>
