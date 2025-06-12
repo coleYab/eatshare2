@@ -13,16 +13,31 @@ const mainNavItems: NavItem[] = [
         href: '/dashboard',
         icon: LayoutGrid,
     },
+    {
+        title: 'Discover Recipe',
+        href: '/receipe',
+        icon: LayoutGrid,
+    },
+    {
+        title: 'Discover Chefs',
+        href: '/discover/chef',
+        icon: LayoutGrid,
+    },
+    {
+        title: 'Create Recipe',
+        href: '/receipe/create',
+        icon: LayoutGrid,
+    },
 ];
 
 const footerNavItems: NavItem[] = [
     {
-        title: 'Repository',
+        title: 'About us',
         href: 'https://github.com/laravel/react-starter-kit',
         icon: Folder,
     },
     {
-        title: 'Documentation',
+        title: 'Terms of service',
         href: 'https://laravel.com/docs/starter-kits#react',
         icon: BookOpen,
     },

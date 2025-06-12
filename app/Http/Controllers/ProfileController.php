@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreProfileRequest;
 use App\Http\Requests\UpdateProfileRequest;
 use App\Models\Profile;
+use Inertia\Inertia;
 
 class ProfileController extends Controller
 {
@@ -13,7 +14,7 @@ class ProfileController extends Controller
      */
     public function index()
     {
-        //
+        return Inertia::render('chef/discover');
     }
 
     /**
@@ -37,7 +38,7 @@ class ProfileController extends Controller
      */
     public function show(Profile $profile)
     {
-        //
+        return Inertia::render('profile/profile');
     }
 
     /**

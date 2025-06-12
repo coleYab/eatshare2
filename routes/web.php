@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\ReceipeController;
 use App\Http\Controllers\CommentController;
+use App\Http\Controllers\ProfileController;
 
 Route::get('/', function () {
     return Inertia::render('welcome');
@@ -13,6 +14,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', function () {
         return Inertia::render('dashboard');
     })->name('dashboard');
+
+    Route::get('profile', [ProfileController::class, 'show']);
+    Route::get('profile/{id}', [ProfileController::class, 'show']);
+    Route::get('discover/chef', [ProfileController::class, 'index']);
 
     Route::get('search', [ ReceipeController::class, 'search' ]);
     Route::resource('receipe/{receipe}/comment', CommentController::class);

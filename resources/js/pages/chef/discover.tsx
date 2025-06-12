@@ -1,22 +1,21 @@
-import RecipePage from '@/components/receipe';
+import DiscoverPage from '@/components/chef/discover';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
-        title: 'Receipe List',
-        href: '/receipe',
+        title: 'Dashboard',
+        href: '/dashboard',
     },
 ];
 
-export default function ReceipePage({ data } : { data: any}) {
-    console.log(data)
+export default function Dashboard() {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Receipes" />
+            <Head title="Dashboard" />
             <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
-                <RecipePage data={data}/>
+                <DiscoverPage />
             </div>
         </AppLayout>
     );
