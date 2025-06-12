@@ -2,8 +2,6 @@ import { useState } from "react"
 import {
     Heart,
     MessageCircle,
-    Share2,
-    MoreHorizontal,
     UserPlus,
     UserCheck,
     MapPin,
@@ -15,28 +13,25 @@ import {
     ChefHat,
     Award,
     Users,
-    BookOpen,
     Clock,
     Star,
-    TrendingUp,
 } from "lucide-react"
+import { Link } from '@inertiajs/react'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
-// Mock data for the profile
 const profileData = {
     id: 1,
     name: "Chef Maria Rodriguez",
-    username: "@chefmaria",
-    bio: "🍳 Professional Chef & Food Artist\n🌟 Michelin Star Restaurant Owner\n📚 Cookbook Author\n🎥 YouTube Creator with 2M+ subscribers",
+    username: "@username",
+    bio: "🍳 Professional Chef & Food Artist\n🌟 Michelin Star Restaurant Owner\n📚 Cookbook Author\n",
     location: "Barcelona, Spain",
     website: "www.chefmaria.com",
     joinedDate: "March 2020",
     isVerified: true,
-    coverImage: "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=1200&h=400&fit=crop",
     profileImage: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face",
     stats: {
         followers: 125400,
@@ -52,12 +47,6 @@ const profileData = {
         youtube: "https://youtube.com/chefmaria",
     },
     isFollowing: false,
-    achievements: [
-        { icon: Award, label: "Michelin Star Chef", color: "text-yellow-500" },
-        { icon: BookOpen, label: "Published Author", color: "text-blue-500" },
-        { icon: TrendingUp, label: "Top Creator", color: "text-green-500" },
-        { icon: Star, label: "5-Star Rated", color: "text-purple-500" },
-    ],
 }
 
 // Mock recipe data
@@ -311,23 +300,6 @@ isFollowing
                             <div className="text-sm text-indigo-700 font-medium">Total Views</div>
                         </div>
                     </div>
-
-                    {/* Achievements */}
-                    <div className="mt-6">
-                        <h3 className="text-lg font-semibold mb-3 text-gray-900">Achievements</h3>
-                        <div className="flex flex-wrap gap-3">
-                            {profile.achievements.map((achievement, index) => (
-                                <Badge
-                                    key={index}
-                                    variant="secondary"
-                                    className="px-3 py-2 bg-white border-2 border-gray-200 hover:border-gray-300 transition-colors"
-                                >
-                                    <achievement.icon size={16} className={`mr-2 ${achievement.color}`} />
-                                    {achievement.label}
-                                </Badge>
-                            ))}
-                        </div>
-                    </div>
                 </div>
             </div>
 
@@ -345,72 +317,74 @@ isFollowing
                         </TabsTrigger>
                         <TabsTrigger value="tagged" className="flex items-center gap-2">
                             <Users size={16} />
-                            Tagged
+                            Following
                         </TabsTrigger>
                     </TabsList>
 
                     <TabsContent value="recipes" className="mt-6">
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                             {recipes.map((recipe) => (
-                                <Card
-                                    key={recipe.id}
-                                    className="group overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-2 cursor-pointer"
-                                >
-                                    <div className="relative aspect-square overflow-hidden">
-                                        <img
-                                            src={recipe.image || "/placeholder.svg"}
-                                            alt={recipe.title}
-                                            className="object-cover transition-transform duration-500 group-hover:scale-110"
-                                        />
+                                <Link href={`/receipe/${recipe.id}`}>
+                                    <Card
+                                        key={recipe.id}
+                                        className="group overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-2 cursor-pointer"
+                                    >
+                                        <div className="relative aspect-square overflow-hidden">
+                                            <img
+                                                src={recipe.image || "/placeholder.svg"}
+                                                alt={recipe.title}
+                                                className="object-cover transition-transform duration-500 group-hover:scale-110"
+                                            />
 
-                                        {/* Overlay on hover */}
-                                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                                            <div className="flex items-center gap-4 text-white">
-                                                <div className="flex items-center gap-1">
-                                                    <Heart size={20} />
-                                                    <span className="font-semibold">{formatNumber(recipe.likes)}</span>
-                                                </div>
-                                                <div className="flex items-center gap-1">
-                                                    <MessageCircle size={20} />
-                                                    <span className="font-semibold">{recipe.comments}</span>
+                                            {/* Overlay on hover */}
+                                            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                                                <div className="flex items-center gap-4 text-white">
+                                                    <div className="flex items-center gap-1">
+                                                        <Heart size={20} />
+                                                        <span className="font-semibold">{formatNumber(recipe.likes)}</span>
+                                                    </div>
+                                                    <div className="flex items-center gap-1">
+                                                        <MessageCircle size={20} />
+                                                        <span className="font-semibold">{recipe.comments}</span>
+                                                    </div>
                                                 </div>
                                             </div>
+
+                                            {/* Difficulty Badge */}
+                                            <Badge className={`absolute top-3 left-3 ${getDifficultyColor(recipe.difficulty)}`}>
+                                                {recipe.difficulty}
+                                            </Badge>
+
+                                            {/* Rating Badge */}
+                                            <Badge className="absolute top-3 right-3 bg-black/70 text-white">
+                                                <Star size={12} className="mr-1 fill-current" />
+                                                {recipe.rating}
+                                            </Badge>
                                         </div>
 
-                                        {/* Difficulty Badge */}
-                                        <Badge className={`absolute top-3 left-3 ${getDifficultyColor(recipe.difficulty)}`}>
-                                            {recipe.difficulty}
-                                        </Badge>
-
-                                        {/* Rating Badge */}
-                                        <Badge className="absolute top-3 right-3 bg-black/70 text-white">
-                                            <Star size={12} className="mr-1 fill-current" />
-                                            {recipe.rating}
-                                        </Badge>
-                                    </div>
-
-                                    <CardContent className="p-4">
-                                        <h3 className="font-semibold text-lg mb-2 group-hover:text-orange-600 transition-colors">
-                                            {recipe.title}
-                                        </h3>
-                                        <div className="flex items-center justify-between text-sm text-gray-500">
-                                            <div className="flex items-center gap-1">
-                                                <Clock size={14} />
-                                                <span>{recipe.cookTime} min</span>
-                                            </div>
-                                            <div className="flex items-center gap-3">
+                                        <CardContent className="p-4">
+                                            <h3 className="font-semibold text-lg mb-2 group-hover:text-orange-600 transition-colors">
+                                                {recipe.title}
+                                            </h3>
+                                            <div className="flex items-center justify-between text-sm text-gray-500">
                                                 <div className="flex items-center gap-1">
-                                                    <Heart size={14} />
-                                                    <span>{formatNumber(recipe.likes)}</span>
+                                                    <Clock size={14} />
+                                                    <span>{recipe.cookTime} min</span>
                                                 </div>
-                                                <div className="flex items-center gap-1">
-                                                    <MessageCircle size={14} />
-                                                    <span>{recipe.comments}</span>
+                                                <div className="flex items-center gap-3">
+                                                    <div className="flex items-center gap-1">
+                                                        <Heart size={14} />
+                                                        <span>{formatNumber(recipe.likes)}</span>
+                                                    </div>
+                                                    <div className="flex items-center gap-1">
+                                                        <MessageCircle size={14} />
+                                                        <span>{recipe.comments}</span>
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    </CardContent>
-                                </Card>
+                                        </CardContent>
+                                    </Card>
+                                </Link>
                             ))}
                         </div>
                     </TabsContent>
@@ -426,8 +400,8 @@ isFollowing
                     <TabsContent value="tagged" className="mt-6">
                         <div className="text-center py-12">
                             <Users size={48} className="mx-auto text-gray-400 mb-4" />
-                            <h3 className="text-xl font-semibold text-gray-600 mb-2">No tagged recipes yet</h3>
-                            <p className="text-gray-500">Recipes you're tagged in will appear here</p>
+                            <h3 className="text-xl font-semibold text-gray-600 mb-2">You are not following any user yet</h3>
+                            <p className="text-gray-500">Users you have followed will appear here</p>
                         </div>
                     </TabsContent>
                 </Tabs>

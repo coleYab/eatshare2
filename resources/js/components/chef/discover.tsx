@@ -285,7 +285,7 @@ export default function DiscoverPage() {
     return (
         <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50">
             {/* Header */}
-            <div className="backdrop-blur-sm border-b sticky top-0 z-40">
+            <div className="backdrop-blur-sm border-b">
                 <div className="container mx-auto px-4 py-6">
                     <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
                         <div>
@@ -294,72 +294,74 @@ export default function DiscoverPage() {
                             </h1>
                             <p className="text-gray-600 mt-2">Find and follow the world's most talented culinary artists</p>
                         </div>
-
-                        <div className="flex flex-col sm:flex-row gap-4">
-                            {/* View Toggle */}
-                            <div className="flex items-center gap-2">
-                                <Button
-                                    variant={viewMode === "grid" ? "default" : "outline"}
-                                    size="icon"
-                                    onClick={() => setViewMode("grid")}
-                                >
-                                    <Grid3X3 size={18} />
-                                </Button>
-                                <Button
-                                    variant={viewMode === "list" ? "default" : "outline"}
-                                    size="icon"
-                                    onClick={() => setViewMode("list")}
-                                >
-                                    <List size={18} />
-                                </Button>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
 
             <div className="container mx-auto px-4 py-8">
-                {/* Featured Chefs Section */}
-                <div className="mb-12">
+                <div>
                     <div className="flex items-center gap-3 mb-6">
-                        <Crown className="text-yellow-500" size={24} />
-                        <h2 className="text-2xl font-bold text-gray-900">Featured Chefs</h2>
-                        <Sparkles className="text-purple-500" size={20} />
+                        <Users className="text-blue-500" size={24} />
+                        <h2 className="text-2xl font-bold text-gray-900">All Chefs</h2>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {featuredChefs.map((chef) => (
-                            <Card
-                                key={chef.id}
-                                className="group overflow-hidden hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 bg-gradient-to-br from-white to-gray-50 border-0 shadow-lg"
-                            >
-                                {/* Cover Image */}
-                                <div className="relative h-32 overflow-hidden">
-                                    <img
-                                        src={chef.coverImage || "/placeholder.svg"}
-                                        alt={`${chef.name} cover`}
-                                        className="object-cover transition-transform duration-500 group-hover:scale-110"
-                                    />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+                    <div className="space-y-4">
+                        {filteredChefs.map((chef) => (
+                            <Card key={chef.id} className="group hover:shadow-lg transition-all duration-300 bg-white">
+                                <CardContent className="p-6">
+                                    <div className="flex items-center gap-6">
 
-                                    {/* Badges */}
-                                    <div className="absolute top-3 left-3 flex gap-2">
-                                        {chef.isVerified && (
-                                            <Badge className="bg-blue-500 hover:bg-blue-600">
-                                                <Award size={12} className="mr-1" />
-                                                Verified
-                                            </Badge>
-                                        )}
-                                        <Badge className="bg-yellow-500 hover:bg-yellow-600">
-                                            <Crown size={12} className="mr-1" />
-                                            Featured
-                                        </Badge>
-                                    </div>
+                                        <Link href={`/profile/${chef.id}`}>
+                                            <Avatar className="w-16 h-16">
+                                                <AvatarImage src={chef.avatar || "/placeholder.svg"} alt={chef.name} />
+                                                <AvatarFallback className="text-lg font-bold bg-gradient-to-br from-purple-400 to-pink-400 text-white">
+                                                    {chef.name
+                                                        .split(" ")
+                                                        .map((n) => n[0])
+                                                        .join("")}
+                                                </AvatarFallback>
+                                            </Avatar>
+                                        </Link>
 
-                                    {/* Follow Button */}
-                                    <div className="absolute top-3 right-3">
+                                        <div className="flex-1">
+                                            <div className="flex items-center gap-2 mb-1">
+                                                <h3 className="text-lg font-bold text-gray-900">{chef.name}</h3>
+                                                {chef.isVerified && (
+                                                    <Badge className="bg-blue-500 hover:bg-blue-600">
+                                                        <Award size={12} className="mr-1" />
+                                                        Verified
+                                                    </Badge>
+                                                )}
+                                            </div>
+                                            <p className="text-gray-600 mb-2">{chef.bio}</p>
+                                            <div className="flex items-center gap-4 text-sm text-gray-500">
+                                                <div className="flex items-center gap-1">
+                                                    <MapPin size={14} />
+                                                    <span>{chef.location}</span>
+                                                </div>
+                                                <Badge variant="secondary">{chef.specialty}</Badge>
+                                            </div>
+                                        </div>
+
+                                        <div className="flex items-center gap-8 text-center">
+                                            <div>
+                                                <div className="text-lg font-bold text-gray-900">{formatNumber(chef.followers)}</div>
+                                                <div className="text-xs text-gray-500">Followers</div>
+                                            </div>
+                                            <div>
+                                                <div className="text-lg font-bold text-gray-900">{chef.recipes}</div>
+                                                <div className="text-xs text-gray-500">Recipes</div>
+                                            </div>
+                                            <div>
+                                                <div className="flex items-center gap-1">
+                                                    <Star size={14} className="text-yellow-500 fill-current" />
+                                                    <span className="text-lg font-bold text-gray-900">{chef.rating}</span>
+                                                </div>
+                                                <div className="text-xs text-gray-500">Rating</div>
+                                            </div>
+                                        </div>
+
                                         <Button
-                                            size="sm"
                                             onClick={() => handleFollow(chef.id, chef.name)}
                                             className={`transition-all duration-300 ${
 followingStates[chef.id]
@@ -369,268 +371,21 @@ followingStates[chef.id]
                                         >
                                             {followingStates[chef.id] ? (
                                                 <>
-                                                    <UserCheck size={14} className="mr-1" />
+                                                    <UserCheck size={16} className="mr-2" />
                                                     Following
                                                 </>
                                             ) : (
                                                     <>
-                                                        <UserPlus size={14} className="mr-1" />
+                                                        <UserPlus size={16} className="mr-2" />
                                                         Follow
                                                     </>
                                                 )}
                                         </Button>
                                     </div>
-                                </div>
-
-                                <CardHeader className="relative -mt-12 z-10">
-                                    {/* Avatar */}
-                                    <div className="flex items-start justify-between">
-                                        <Avatar className="w-20 h-20 border-4 border-white shadow-lg">
-                                            <AvatarImage src={chef.avatar || "/placeholder.svg"} alt={chef.name} />
-                                            <AvatarFallback className="text-lg font-bold bg-gradient-to-br from-purple-400 to-pink-400 text-white">
-                                                {chef.name
-                                                    .split(" ")
-                                                    .map((n) => n[0])
-                                                    .join("")}
-                                            </AvatarFallback>
-                                        </Avatar>
-                                    </div>
-
-                                    <div className="mt-4">
-                                        <h3 className="text-xl font-bold text-gray-900 group-hover:text-purple-600 transition-colors">
-                                            {chef.name}
-                                        </h3>
-                                        <p className="text-gray-600 font-medium">{chef.username}</p>
-                                        <p className="text-sm text-gray-500 mt-1">{chef.bio}</p>
-                                    </div>
-                                </CardHeader>
-
-                                <CardContent className="space-y-4">
-                                    {/* Location & Specialty */}
-                                    <div className="flex items-center justify-between text-sm">
-                                        <div className="flex items-center gap-1 text-gray-600">
-                                            <MapPin size={14} />
-                                            <span>{chef.location}</span>
-                                        </div>
-                                        <Badge variant="secondary" className="bg-purple-100 text-purple-700">
-                                            {chef.specialty}
-                                        </Badge>
-                                    </div>
-
-                                    {/* Stats */}
-                                    <div className="grid grid-cols-3 gap-4 text-center">
-                                        <div>
-                                            <div className="text-lg font-bold text-gray-900">{formatNumber(chef.followers)}</div>
-                                            <div className="text-xs text-gray-500">Followers</div>
-                                        </div>
-                                        <div>
-                                            <div className="text-lg font-bold text-gray-900">{chef.recipes}</div>
-                                            <div className="text-xs text-gray-500">Recipes</div>
-                                        </div>
-                                        <div>
-                                            <div className="flex items-center justify-center gap-1">
-                                                <Star size={14} className="text-yellow-500 fill-current" />
-                                                <span className="text-lg font-bold text-gray-900">{chef.rating}</span>
-                                            </div>
-                                            <div className="text-xs text-gray-500">Rating</div>
-                                        </div>
-                                    </div>
-
-                                    {/* Recent Recipes */}
-                                    <div>
-                                        <div className="text-sm font-medium text-gray-700 mb-2">Recent Recipes</div>
-                                        <div className="flex gap-2">
-                                            {chef.recentRecipes.map((recipe, index) => (
-                                                <div key={index} className="relative w-12 h-12 rounded-lg overflow-hidden">
-                                                    <img
-                                                        src={recipe || "/placeholder.svg"}
-                                                        alt={`Recipe ${index + 1}`}
-                                                        className="object-cover hover:scale-110 transition-transform duration-300"
-                                                    />
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-
-                                    {/* Badges */}
-                                    <div className="flex flex-wrap gap-1">
-                                        {chef.badges.slice(0, 2).map((badge, index) => (
-                                            <Badge key={index} variant="outline" className="text-xs">
-                                                {badge}
-                                            </Badge>
-                                        ))}
-                                    </div>
                                 </CardContent>
                             </Card>
                         ))}
                     </div>
-                </div>
-
-                {/* All Chefs Section */}
-                <div>
-                    <div className="flex items-center gap-3 mb-6">
-                        <Users className="text-blue-500" size={24} />
-                        <h2 className="text-2xl font-bold text-gray-900">All Chefs</h2>
-                    </div>
-
-                    {viewMode === "grid" ? (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                            {filteredChefs.map((chef) => (
-                                <Link href={`/profile/${chef.id}`}>
-                                <Card
-                                    key={chef.id}
-                                    className="group overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1 bg-white border-0 shadow-md"
-                                >
-                                    <div className="relative aspect-square overflow-hidden">
-                                        <Link href={`profile/${chef.id}`}>
-                                            <img
-                                                src={chef.avatar || "/placeholder.svg"}
-                                                alt={chef.name}
-                                                className="object-cover transition-transform duration-500 group-hover:scale-110"
-                                            />
-                                        </Link>
-                                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-
-                                        {/* Quick Stats Overlay */}
-                                        <div className="absolute bottom-4 left-4 right-4 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                            <div className="flex justify-between text-sm">
-                                                <div className="flex items-center gap-1">
-                                                    <Users size={14} />
-                                                    <span>{formatNumber(chef.followers)}</span>
-                                                </div>
-                                                <div className="flex items-center gap-1">
-                                                    <ChefHat size={14} />
-                                                    <span>{chef.recipes}</span>
-                                                </div>
-                                                <div className="flex items-center gap-1">
-                                                    <Star size={14} className="fill-current" />
-                                                    <span>{chef.rating}</span>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        {/* Follow Button */}
-                                        <div className="absolute top-3 right-3">
-                                            <Button
-                                                size="sm"
-                                                onClick={() => handleFollow(chef.id, chef.name)}
-                                                className={`transition-all duration-300 ${
-followingStates[chef.id]
-? "bg-white/20 backdrop-blur-sm text-white hover:bg-white/30"
-: "bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white shadow-lg hover:shadow-xl transform hover:scale-105"
-}`}
-                                            >
-                                                {followingStates[chef.id] ? <UserCheck size={14} /> : <UserPlus size={14} />}
-                                            </Button>
-                                        </div>
-
-                                        {/* Verification Badge */}
-                                        {chef.isVerified && (
-                                            <div className="absolute top-3 left-3">
-                                                <Badge className="bg-blue-500 hover:bg-blue-600">
-                                                    <Award size={12} />
-                                                </Badge>
-                                            </div>
-                                        )}
-                                    </div>
-
-                                    <CardContent className="p-4">
-                                        <h3 className="font-bold text-gray-900 group-hover:text-purple-600 transition-colors truncate">
-                                            {chef.name}
-                                        </h3>
-                                        <p className="text-sm text-gray-600 truncate">{chef.specialty}</p>
-                                        <div className="flex items-center gap-1 text-xs text-gray-500 mt-1">
-                                            <MapPin size={12} />
-                                            <span className="truncate">{chef.location}</span>
-                                        </div>
-                                    </CardContent>
-                                </Card>
-                                </Link>
-                            ))}
-                        </div>
-                    ) : (
-                            <div className="space-y-4">
-                                {filteredChefs.map((chef) => (
-                                    <Card key={chef.id} className="group hover:shadow-lg transition-all duration-300 bg-white">
-                                        <CardContent className="p-6">
-                                            <div className="flex items-center gap-6">
-
-                                                <Link href={`profile/${chef.id}`}>
-                                                    <Avatar className="w-16 h-16">
-                                                        <AvatarImage src={chef.avatar || "/placeholder.svg"} alt={chef.name} />
-                                                        <AvatarFallback className="text-lg font-bold bg-gradient-to-br from-purple-400 to-pink-400 text-white">
-                                                            {chef.name
-                                                                .split(" ")
-                                                                .map((n) => n[0])
-                                                                .join("")}
-                                                        </AvatarFallback>
-                                                    </Avatar>
-                                                </Link>
-
-                                                <div className="flex-1">
-                                                    <div className="flex items-center gap-2 mb-1">
-                                                        <h3 className="text-lg font-bold text-gray-900">{chef.name}</h3>
-                                                        {chef.isVerified && (
-                                                            <Badge className="bg-blue-500 hover:bg-blue-600">
-                                                                <Award size={12} className="mr-1" />
-                                                                Verified
-                                                            </Badge>
-                                                        )}
-                                                    </div>
-                                                    <p className="text-gray-600 mb-2">{chef.bio}</p>
-                                                    <div className="flex items-center gap-4 text-sm text-gray-500">
-                                                        <div className="flex items-center gap-1">
-                                                            <MapPin size={14} />
-                                                            <span>{chef.location}</span>
-                                                        </div>
-                                                        <Badge variant="secondary">{chef.specialty}</Badge>
-                                                    </div>
-                                                </div>
-
-                                                <div className="flex items-center gap-8 text-center">
-                                                    <div>
-                                                        <div className="text-lg font-bold text-gray-900">{formatNumber(chef.followers)}</div>
-                                                        <div className="text-xs text-gray-500">Followers</div>
-                                                    </div>
-                                                    <div>
-                                                        <div className="text-lg font-bold text-gray-900">{chef.recipes}</div>
-                                                        <div className="text-xs text-gray-500">Recipes</div>
-                                                    </div>
-                                                    <div>
-                                                        <div className="flex items-center gap-1">
-                                                            <Star size={14} className="text-yellow-500 fill-current" />
-                                                            <span className="text-lg font-bold text-gray-900">{chef.rating}</span>
-                                                        </div>
-                                                        <div className="text-xs text-gray-500">Rating</div>
-                                                    </div>
-                                                </div>
-
-                                                <Button
-                                                    onClick={() => handleFollow(chef.id, chef.name)}
-                                                    className={`transition-all duration-300 ${
-followingStates[chef.id]
-? "bg-gray-200 text-gray-800 hover:bg-gray-300"
-: "bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white shadow-lg hover:shadow-xl transform hover:scale-105"
-}`}
-                                                >
-                                                    {followingStates[chef.id] ? (
-                                                        <>
-                                                            <UserCheck size={16} className="mr-2" />
-                                                            Following
-                                                        </>
-                                                    ) : (
-                                                            <>
-                                                                <UserPlus size={16} className="mr-2" />
-                                                                Follow
-                                                            </>
-                                                        )}
-                                                </Button>
-                                            </div>
-                                        </CardContent>
-                                    </Card>
-                                ))}
-                            </div>
-                        )}
 
                     {filteredChefs.length === 0 && (
                         <div className="text-center py-12">

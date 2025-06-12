@@ -1,4 +1,5 @@
 import { useState } from "react"
+import { Link } from '@inertiajs/react'
 import {
   BarChart,
   Bar,
@@ -174,10 +175,10 @@ const recentActivity = [
 ]
 
 const quickActions = [
-  { icon: Plus, label: "New Recipe", color: "bg-blue-500", href: "/recipes/new" },
-  { icon: Globe, label: "Discover Recipie", color: "bg-red-500", href: "/live" },
-  { icon: Globe, label: "Discover Chefs", color: "bg-cyan-500", href: "/live" },
-  { icon: Bookmark, label: "Favourites", color: "bg-yellow-500", href: "/collections" },
+  { icon: Plus, label: "New Recipe", color: "bg-blue-500", href: "/receipe/create" },
+  { icon: Globe, label: "Discover Recipie", color: "bg-red-500", href: "/receipe" },
+  { icon: Globe, label: "Discover Chefs", color: "bg-cyan-500", href: "/discover/chef" },
+  { icon: Bookmark, label: "Favourites", color: "bg-yellow-500", href: "/profile/me" },
 ]
 
 export default function DashboardPage() {
@@ -227,6 +228,7 @@ export default function DashboardPage() {
           <h2 className="text-lg font-semibold mb-4 text-gray-900">Quick Actions</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {quickActions.map((action, index) => (
+            <Link className="flex items-center justify-center" href={action.href}>
               <Button
                 key={index}
                 variant="outline"
@@ -237,6 +239,7 @@ export default function DashboardPage() {
                 </div>
                 <span className="text-sm font-medium">{action.label}</span>
               </Button>
+                            </Link>
             ))}
           </div>
         </div>
