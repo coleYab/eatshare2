@@ -1,4 +1,5 @@
 import { useState } from "react"
+import { router } from "@inertiajs/react"
 import {
     Heart,
     MessageCircle,
@@ -151,6 +152,7 @@ export default function ProfilePage() {
 
     const handleFollow = () => {
         setIsFollowing(!isFollowing)
+        router.get('/user/1/follow');
         setFollowersCount((prev) => (isFollowing ? prev - 1 : prev + 1))
     }
 

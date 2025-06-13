@@ -33,6 +33,12 @@ class Receipe extends Model
         return $this->belongsTo(User::class);
     }
 
+
+    public function likedBy()
+    {
+        return $this->belongsToMany(User::class)->withTimestamps();
+    }
+
     public function steps() {
         return $this->hasMany(Steps::class);
     }

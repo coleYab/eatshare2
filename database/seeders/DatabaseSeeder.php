@@ -17,25 +17,25 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        User::factory(10)->create();
         User::factory()->create([
             'name' => 'Test User',
             'email' => 'test@example.com',
             'password' => 'gamegame'
         ])->each(function ($user) {
-            Receipe::factory(10)->create([
-                'user_id' => $user->id
-            ])->each(function ($rec) {
-                Ingredient::factory(random_int(3, 15))->create([
-                    'receipe_id' => $rec->id,
-                ]);
-                   Steps::factory(random_int(3, 15))->create([
-                    'receipe_id' => $rec->id,
-                ]);
-                Comment::factory(random_int(10, 15))->create([
-                    'receipe_id' => $rec->id,
-                ]);
+                Receipe::factory(10)->create([
+                    'user_id' => $user->id
+                ])->each(function ($rec) {
+                        Ingredient::factory(random_int(3, 15))->create([
+                            'receipe_id' => $rec->id,
+                        ]);
+                        Steps::factory(random_int(3, 15))->create([
+                            'receipe_id' => $rec->id,
+                        ]);
+                        Comment::factory(random_int(10, 15))->create([
+                            'receipe_id' => $rec->id,
+                        ]);
+                    });
             });
-        });
     }
 }

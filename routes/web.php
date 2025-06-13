@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Auth\RegisteredUserController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\ReceipeController;
@@ -21,6 +22,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('search', [ ReceipeController::class, 'search' ]);
     Route::resource('receipe/{receipe}/comment', CommentController::class);
+    Route::get('receipe/{receipe}/like', [ RegisteredUserController::class, "like" ]);
+    Route::get('user/{user}/follow', [ RegisteredUserController::class, "follow" ]);
+    Route::get('user/{user}/followers', [ RegisteredUserController::class, "followers" ]);
+    Route::get('user/{user}/following', [ RegisteredUserController::class, "following" ]);
     Route::resource('receipe', ReceipeController::class);
 });
 

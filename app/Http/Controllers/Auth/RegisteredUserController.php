@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\Receipe;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
@@ -21,6 +22,37 @@ class RegisteredUserController extends Controller
     public function create(): Response
     {
         return Inertia::render('auth/register');
+    }
+
+    public function like(Receipe $receipe): Response
+    {
+        $curUser = request()->user();
+        $curUser->like($receipe);
+        $curUser->loadMissing('liked');
+        return Inertia::render('demo/show', ['data'=> $curUser]);
+    }
+
+    public function follow(User $user): Response
+    {
+        $curUser = request()->user();
+        $curUser->follow($user);
+        return Inertia::render('demo/show', ['data'=> $user]);
+    }
+
+
+    public function followers(User $user): Response
+    {
+        $user->loadMissing('followers');
+        $user->loadMissing('following');
+        return Inertia::render('demo/show', ['data'=> $user]);
+    }
+
+
+    public function following(User $user): Response
+    {
+        $user->loadMissing('followers');
+        $user->loadMissing('following');
+        return Inertia::render('demo/show', ['data'=> $user]);
     }
 
     /**

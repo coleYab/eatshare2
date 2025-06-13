@@ -50,15 +50,42 @@ class User extends Authenticatable
         return $this->hasMany(Receipe::class);
     }
 
-    public function liked() {
-        return $this->belongsToMany(Receipe::class);
+    public function liked()
+    {
+        return $this->belongsToMany(Receipe::class)->withTimestamps();
     }
 
-    public function following() {
-        return $this->belongsToMany(User::class);
+    // Users this user is following
+    public function following()
+    {
+        return $this->belongsToMany(User::class, 'follows', 'follower_id', 'followed_id')->withTimestamps();
     }
 
-    public function follows() {
-        return $this->belongsToMany(User::class);
+    public function like(Receipe $recipe) {
+        $this->liked()->attach($recipe->id);
+    }
+
+    // Users following this user
+    public function followers()
+    {
+        return $this->belongsToMany(User::class, 'follows', 'followed_id', 'follower_id')->withTimestamps();
+    }
+
+    // Follow another user
+    public function follow(User $user)
+    {
+        $this->following()->attach($user->id);
+    }
+
+    // Unfollow a user
+    public function unfollow(User $user)
+    {
+        $this->following()->detach($user->id);
+    }
+
+    // Check if following
+    public function isFollowing(User $user)
+    {
+        return $this->following()->where('followed_id', $user->id)->exists();
     }
 }
